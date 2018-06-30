@@ -35,7 +35,8 @@
 			mode: '24h', // Whether to use 24h or 12h system
 			large: false, // Whether large button style
 			static: false, // Whether to position static (always open)
-			title: 'Timepicker' // Title in opened state
+			title: 'Timepicker', // Title in opened state
+			position: 'Bottom',
 		};
 		this.template = {
 			inner: '<li class="appo-picker-list-item {{disabled}}">' +
@@ -157,7 +158,7 @@
 					selectedEl.classList.add('is-selected');
 				}
 			}
-			if (!this.options.static) {
+			if (!this.options.static && this.options.position === "Bottom") {
 				this.picker.style.top = bottom + 'px';
 				this.picker.style.left = left + 'px';
 			}
