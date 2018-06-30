@@ -1,21 +1,21 @@
 {
-  "name": "appointment-picker",
-  "version": "1.1.0",
-  "description": "customizable timepicker to be used with or without jQuery",
+  "name": "appointment-slot-picker",
+  "version": "1.1.1",
+  "description": "customizable timepicker to be used with or without jQuery a fork from Jan Suwart and his project over at https://github.com/jannicz/appointment-picker",
   "main": "js/appointment-picker.js",
   "scripts": {
     "uglify": "uglifyjs ./js/appointment-picker.js -c -m -o ./js/appointment-picker.min.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jannicz/appointment-picker.git"
+    "url": "git+https://github.com/grandadmiralmcb/appointment-picker.git"
   },
-  "author": "Jan Suwart",
+  "author": "Matthew Blackmon",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jannicz/appointment-picker/issues"
+    "url": "https://github.com/grandadmiralmcb/appointment-picker/issues"
   },
-  "homepage": "https://github.com/jannicz/appointment-picker#readme",
+  "homepage": "https://github.com/grandadmiralmcb/appointment-picker#readme",
   "devDependencies": {
     "uglify-es": "^3.2.2"
   }
