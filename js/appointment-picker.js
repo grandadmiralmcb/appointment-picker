@@ -323,7 +323,15 @@
 
 			if (isValid) {
 				this.time = time;
-				this.displayTime = _printTime(this.time.h, this.time.m, timePattern, !is24h);
+		
+				if (!this.options.useSlotTemplate)
+					this.displayTime = _printTime(this.time.h, this.time.m, timePattern, !is24h);
+				else 
+				{
+					var hourOffset = (this.options.interval - this.options.interval % 60) / 60;
+					var minuteOffset = this.options.interval % 60;
+					this.displayTime = _printTime(this.time.h, this.time.m, timePattern, !is24h) + " - " + _printtime(this.time.h + hourOffset, this.time.m + minuteOffset, timePattern, !is24h);
+				}
 				// Trigger an event with attached time property
 				var event = document.createEvent('Event');
 				event.initEvent('change.appo.picker', true, true);
@@ -331,7 +339,11 @@
 				this.el.dispatchEvent(event);
 			}
 		}
+		
+		
 		this.el.value = this.displayTime;
+		
+		
 	};
 
 	// Time getter returns time as 24h
@@ -414,7 +426,7 @@
 	 */
 	function _printTime(hour, minute, pattern, isAmPmMode) {
 		
-		if (!this.options.useSlotTemplate) {
+
 			var displayHour = hour;
 
 			if (isAmPmMode) {
@@ -427,33 +439,7 @@
 			}
 
 			return pattern.replace('H', displayHour).replace('M', _zeroPadTime(minute));
-		}
-		else
-		{
-			var patternPart2 = pattern.clone;
-			var displayHour = hour;
-			var displayHourSlotEnd = hour + ((this.options.interval - this.options.interval % 60) / 60); //interval offset
-			var displayMinuteSlotEnd = minute + (this.options.interval % 60); //interval offset
 		
-			if (isAmPmMode) {
-				if (hour > 12) {
-					displayHour = hour - 12;
-				} else if (hour == 0) {
-					displayHour = 12;
-				}
-				pattern = pattern.replace(hour < 12 ? 'p' : 'a', '');
-				if (hour + 2 > 12)
-				{
-					displayHour = hour + 2 - 12;
-				} else if (hour + 2 == 0) {
-					
-				}
-				
-				pattern2 = pattern2.replace(hour + 2 < 12 ? 'p' : 'a', '');
-			}
-
-			return pattern.replace('H', displayHour).replace('M', _zeroPadTime(minute)) + " - " + pattern2.replace('H', displayHourSlotEnd).replace('M', _zeroPadTime(displayMinuteSlotEnd));
-		}
 	};
 	
 	

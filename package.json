@@ -1,6 +1,6 @@
 {
   "name": "appointment-slot-picker",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "description": "customizable timepicker to be used with or without jQuery a fork from Jan Suwart and his project over at https://github.com/jannicz/appointment-picker",
   "main": "js/appointment-picker.js",
   "scripts": {
