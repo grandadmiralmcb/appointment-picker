@@ -2,7 +2,7 @@
  * Appointment-Picker - a lightweight, accessible and customizable timepicker
  *
  * @module Appointment-Picker
- * @version 1.1.0
+ * @version 1.0.7
  *
  * @author Jan Suwart
 */
@@ -45,7 +45,14 @@
 			time12: 'H:M apm',
 			time24: 'H:M'
 		};
-
+		this.template2 = {
+			inner: '<li class="appo-picker-list-item {{disabled}" style="width:100%">' + 
+				'<input type="button" tabindex="-1" value="{{time}}" {{disabled}}></li>',
+			outer: '<span class="appo-picker-title">{{title}}</span>' +
+				'<ul class="appo-picker-list">{{innerHtml}}</ul>',
+			time12: 'H:M apm',
+			time24: 'H:M'
+		};
 		this.el = el;
 		this.picker = null;
 		this.isOpen = false;
@@ -80,18 +87,38 @@
 		if (_this.el.length !== undefined) {
 			console.warn('appointment-picker: pass only one dom element as argument');
 			return;
-		} else if (_this.options.interval > 60) {
+		} /*else if (_this.options.interval > 60) {
 			console.warn('appointment-picker: the maximal interval is 60');
 			return;
-		}
+		}*/
 		// Create 2-dim array holding all disabled times
 		_this.disabledArr = _this.options.disabled.map(function(item) {
 			return _parseTime(item);
 		});
 
 		// Create array holding all minute permutations
-		for (var j = 0; j < 60 / _this.options.interval; j++) {
-			_this.intervals[j] = j * _this.options.interval;
+		
+		if (_this.options.interval < 60) {
+			for (var j = 0; j < 60 / _this.options.interval; j++) {
+				_this.intervals[j] = j * _this.options.interval;
+			}
+		}
+		else 
+		{
+			//convert start hour and end hour to minutes and then increment the interval increasing by a muliple of the iteration
+			//console.log(_this.options.startTime * 60, _this.options.endTime*60);
+			//endTime*60 minus 1 because we don't want to be able to book the actual end time as the internval
+			for (var j=_this.options.startTime * 60, i=0; j < _this.options.endTime*60-_this.options.interval; i++) {
+				//console.log("Starting J:", j, i);
+				j += _this.options.interval;
+				//console.log("Ending J:", j)
+				_this.intervals[i] = j;
+				
+				
+				
+			}
+			
+		console.log(_this.intervals);
 		}
 
 		_this.setTime(_this.el.value);
@@ -109,7 +136,7 @@
 
 			_this.render();
 		}
-	}
+	};
 
 	// Attach visibility classes and set the picker's position
 	AppointmentPicker.prototype.render = function() {
@@ -196,8 +223,6 @@
 		document.body.removeEventListener('focus', this.bodyFocusEventFn, true);
 		// Add an event listener to open on click regardless of mouse focus
 		this.el.addEventListener('click', this.clickEventFn);
-
-		_dispatchEvent(this.el, 'close', this.time);
 	};
 
 	/**
@@ -216,12 +241,12 @@
 			this.el.focus();
 			setTimeout(function() { _this.close(null); }, 100);
 		}
-	}
+	};
 
 	// Handles manual input changes on input field
-	function _onchange() {
+	function _onchange(e) {
 		this.setTime(this.el.value);
-	}
+	};
 
 	/**
 	 * Move focus forward and backward on keyboard arrow key, close picker on ESC
@@ -252,13 +277,13 @@
 				selected.classList.remove('is-selected');
 			this.setTime(next.firstChild.value);
 		}
-	}
+	};
 
 	// Close the picker on document focus, usually by hitting TAB
 	function _onBodyFocus(e) {
 		if (!this.isOpen) return;
 		this.close(e);
-	}
+	};
 
 	// If the input has focus, a mouseclick can still open the picker
 	function _onInputClick(e) {
@@ -276,7 +301,6 @@
 		this.el.removeEventListener('focus', this.openEventFn);
 		this.el.removeEventListener('keyup', this.keyEventFn);
 		this.el.removeEventListener('change', this.changeEventFn);
-		this.el.removeEventListener('click', this.clickEventFn);
 	};
 
 	/**
@@ -299,7 +323,11 @@
 			if (isValid) {
 				this.time = time;
 				this.displayTime = _printTime(this.time.h, this.time.m, timePattern, !is24h);
-				_dispatchEvent(this.el, 'change', this.time);
+				// Trigger an event with attached time property
+				var event = document.createEvent('Event');
+				event.initEvent('change.appo.picker', true, true);
+				event.time = this.time;
+				this.el.dispatchEvent(event);
 			}
 		}
 		this.el.value = this.displayTime;
@@ -315,19 +343,31 @@
 	 * @returns {Boolean} true if valid
 	 */
 	function _isValid(hour, minute, opt, intervals, disabledArr) {
+		
+		
 		var inDisabledArr = false;
+		
+		
 		if (hour < opt.minTime || hour > opt.maxTime || hour > 24) { // Out of min/max
 			return false;
-		} else if (intervals.indexOf(minute) < 0) { // Min doesn't match any interval
+		} else if (opt.interval <= 60 && intervals.indexOf(minute) < 0) { // Min doesn't match any interval
+			return false;
+		} else if (intervals.indexOf(hour*60+minute) < 0) {
 			return false;
 		}
+			
 		disabledArr.forEach(function(item, i) { // h:m combination in disabled array
-			if (item.h === hour && item.m === minute)
-				inDisabledArr = true;
+		if (item.h === hour && item.m === minute)
+			inDisabledArr = true;
 		});
-
+	
 		return !inDisabledArr ? true : false; // All valid
-	}
+			
+		
+		
+		
+		
+	};
 
 	/**
 	 * Add a leading zero and convert to string
@@ -338,7 +378,7 @@
 		if (/^[0-9]{1}$/.test(number))
 			return '0' + number;
 		return number;
-	}
+	};
 
 	/**
 	 * @param {String} time - string that needs to be parsed, i.e. '11:15PM ' or '10:30 am'
@@ -360,7 +400,8 @@
 			}
 			return { h: hour, m: minute };
 		}
-	}
+		return;
+	};
 
 	/**
 	 * Create time considering am/pm conventions
@@ -383,7 +424,11 @@
 		}
 
 		return pattern.replace('H', displayHour).replace('M', _zeroPadTime(minute));
-	}
+	};
+	
+	
+	
+	
 
 	// Find next sibling of item that is not disabled (otherwise return null)
 	function _getNextSibling(item, direction) {
@@ -395,18 +440,18 @@
 		} else { // If disabled class found, try the next sibling
 			return _getNextSibling(next, direction);
 		}
-	}
+	};
 
 	// Create a dom node containing the markup for the picker
 	function _build(_this) {
 		var node = document.createElement('div');
-		node.innerHTML = _assemblePicker(_this.options, _this.template, _this.intervals, _this.disabledArr);
+		node.innerHTML = _assemblePicker(_this.options, (_this.options.interval <= 60) ? _this.template : _this.template2, _this.intervals, _this.disabledArr);
 		node.className = ('appo-picker' + (_this.options.large ? ' is-large' : ''));
 		node.setAttribute('aria-hidden', true);
 		_this.el.insertAdjacentElement('afterend', node);
 
 		return node;
-	}
+	};
 
 	/**
 	 * Assemble the html containing each appointment represented by a button
@@ -421,37 +466,64 @@
 		var inner = '';
 		var isAmPmMode = opt.mode === '12h';
 		var timePattern = isAmPmMode ? tpl.time12 : tpl.time24;
-
-		for (var hour = start; hour < end; hour++) { // Iterate hours start to end	
-			for (var j = 0; j < intervals.length; j++) { // Iterate minutes by possible intervals
-				var minute = intervals[j];
-				var isDisabled = !_isValid(hour, minute, opt, intervals, disabledArr);
-				var timeTemplate = _printTime(hour, minute, timePattern, isAmPmMode);
-				// Replace timeTemplate placeholders with time and disabled flag
-				inner += tpl.inner
-					.replace('{{time}}', timeTemplate)
-					.replace(/{{disabled}}/ig, isDisabled ? 'disabled': '');
+		console.log("Options", opt);
+		if (opt.interval <= 60) {
+			for (var hour = start; hour < end; hour++) { // Iterate hours start to end	
+				for (var j = 0; j < intervals.length; j++) { // Iterate minutes by possible intervals
+					var minute = intervals[j];
+						
+					var isDisabled = !_isValid(hour, minute, opt, intervals, disabledArr);
+					var timeTemplate = _printTime(hour, minute, timePattern, isAmPmMode);
+					// Replace timeTemplate placeholders with time and disabled flag
+					inner += tpl.inner
+						.replace('{{time}}', timeTemplate)
+						.replace(/{{disabled}}/ig, isDisabled ? 'disabled': '');
+				
+				}
 			}
+		} else {
+			console.log("Longer than hour interval for loop");
+			for (var i=0; i < intervals.length; i++)
+			{
+				function intDiv(a, b)
+				{
+					var r = a / b;
+					if (r >= 0)
+					{
+						return Math.floor(r);
+					}
+					else return Math.ceil(r);
+				}
+			
+				var interval = intervals[i];
+				var hour = intDiv(interval, 60);
+				var minute = interval % 60;
+			
+				var templateEndHour = intDiv(interval + opt.interval, 60);
+				var templateEndMinute = (interval + opt.interval) % 60;
+				
+				console.log(hour, minute);
+			
+			
+				var isDisabled = !_isValid(hour, minute, opt, intervals, disabledArr);
+				var timeTemplate = _printTime(hour, minute, timePattern, isAmPmMode) + " - " + _printTime(templateEndHour, templateEndMinute, timePattern, isAmPmMode);
+				
+				console.log("Time Template" + timeTemplate);
+			// Replace timeTemplate placeholders with time and disabled flag
+					inner += tpl.inner
+						.replace('{{time}}', timeTemplate)
+						.replace(/{{disabled}}/ig, isDisabled ? 'disabled': '');
+			}
+			
+	
 		}
 
-		return tpl.outer
-			.replace('{{classes}}', opt.large ? 'is-large': '')
-			.replace('{{title}}', opt.title)
-			.replace('{{innerHtml}}', inner);
-	}
-
-	/**
-	 * Creates and triggers an event with attached time property
-	 * @param {HTMLElement} el - element reference
-	 * @param {String} name - event name
-	 * @param {Object} time - current time
-	 */
-	function _dispatchEvent(el, name, time) {
-		var event = document.createEvent('Event');
-		event.initEvent(name + '.appo.picker', true, true);
-		event.time = time;
-		el.dispatchEvent(event);
-	}
+			return tpl.outer
+				.replace('{{classes}}', opt.large ? 'is-large': '')
+				.replace('{{title}}', opt.title)
+				.replace('{{innerHtml}}', inner);
+		
+	};
 
 	return AppointmentPicker;
 }));
