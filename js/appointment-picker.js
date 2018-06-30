@@ -413,18 +413,47 @@
 	 * @return {String} time string, i.e. '12:30 pm' 
 	 */
 	function _printTime(hour, minute, pattern, isAmPmMode) {
-		var displayHour = hour;
+		
+		if (!this.options.useSlotTemplate) {
+			var displayHour = hour;
 
-		if (isAmPmMode) {
-			if (hour > 12) {
-				displayHour = hour - 12;
-			} else if (hour == 0) {
-				displayHour = 12;
+			if (isAmPmMode) {
+				if (hour > 12) {
+					displayHour = hour - 12;
+				} else if (hour == 0) {
+					displayHour = 12;
+				}
+				pattern = pattern.replace(hour < 12 ? 'p' : 'a', '');
 			}
-			pattern = pattern.replace(hour < 12 ? 'p' : 'a', '');
-		}
 
-		return pattern.replace('H', displayHour).replace('M', _zeroPadTime(minute));
+			return pattern.replace('H', displayHour).replace('M', _zeroPadTime(minute));
+		}
+		else
+		{
+			var patternPart2 = pattern.clone;
+			var displayHour = hour;
+			var displayHourSlotEnd = hour + ((this.options.interval - this.options.interval % 60) / 60); //interval offset
+			var displayMinuteSlotEnd = minute + (this.options.interval % 60); //interval offset
+		
+			if (isAmPmMode) {
+				if (hour > 12) {
+					displayHour = hour - 12;
+				} else if (hour == 0) {
+					displayHour = 12;
+				}
+				pattern = pattern.replace(hour < 12 ? 'p' : 'a', '');
+				if (hour + 2 > 12)
+				{
+					displayHour = hour + 2 - 12;
+				} else if (hour + 2 == 0) {
+					
+				}
+				
+				pattern2 = pattern2.replace(hour + 2 < 12 ? 'p' : 'a', '');
+			}
+
+			return pattern.replace('H', displayHour).replace('M', _zeroPadTime(minute)) + " - " + pattern2.replace('H', displayHourSlotEnd).replace('M', _zeroPadTime(displayMinuteSlotEnd));
+		}
 	};
 	
 	
