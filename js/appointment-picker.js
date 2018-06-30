@@ -36,7 +36,8 @@
 			large: false, // Whether large button style
 			static: false, // Whether to position static (always open)
 			title: 'Timepicker', // Title in opened state
-			position: 'Bottom',
+			position: 'Bottom', //default position
+			useSlotTemplate : false //default template
 		};
 		this.template = {
 			inner: '<li class="appo-picker-list-item {{disabled}}">' +
@@ -330,7 +331,7 @@
 				{
 					var hourOffset = (this.options.interval - this.options.interval % 60) / 60;
 					var minuteOffset = this.options.interval % 60;
-					this.displayTime = _printTime(this.time.h, this.time.m, timePattern, !is24h) + " - " + _printtime(this.time.h + hourOffset, this.time.m + minuteOffset, timePattern, !is24h);
+					this.displayTime = _printTime(this.time.h, this.time.m, timePattern, !is24h) + " - " + _printTime(this.time.h + hourOffset, this.time.m + minuteOffset, timePattern, !is24h);
 				}
 				// Trigger an event with attached time property
 				var event = document.createEvent('Event');
@@ -461,7 +462,7 @@
 	// Create a dom node containing the markup for the picker
 	function _build(_this) {
 		var node = document.createElement('div');
-		node.innerHTML = _assemblePicker(_this.options, (_this.options.interval <= 60) ? _this.template : _this.template2, _this.intervals, _this.disabledArr);
+		node.innerHTML = _assemblePicker(_this.options, (_this.options.useSlotTemplate === true) ? _this.template2 : _this.template, _this.intervals, _this.disabledArr);
 		node.className = ('appo-picker' + (_this.options.large ? ' is-large' : ''));
 		node.setAttribute('aria-hidden', true);
 		_this.el.insertAdjacentElement('afterend', node);
@@ -522,7 +523,10 @@
 			
 			
 				var isDisabled = !_isValid(hour, minute, opt, intervals, disabledArr);
-				var timeTemplate = _printTime(hour, minute, timePattern, isAmPmMode) + " - " + _printTime(templateEndHour, templateEndMinute, timePattern, isAmPmMode);
+				if (opt.useSlotTemplate === true)
+					var timeTemplate = _printTime(hour, minute, timePattern, isAmPmMode) + " - " + _printTime(templateEndHour, templateEndMinute, timePattern, isAmPmMode);
+				else
+					var timeTemplate = _printTime(hour, minute, timePattern, isAmPmMode);
 				
 				console.log("Time Template" + timeTemplate);
 			// Replace timeTemplate placeholders with time and disabled flag
