@@ -48,6 +48,14 @@
 			time24: 'H:M'
 		};
 
+		this.slot_template = {
+			inner: '<li class="appo-slot-picker-list-item {{disabled}}">' +
+				'<input type="button" tabindex="-1" value="{{time}}" {{disabled}}></li>',
+			outer: '<span class="appo-picker-title">{{title}}</span>' +
+				'<ul class="appo-picker-list">{{innerHtml}}</ul>',
+			time12: 'H:M apm',
+			time24: 'H:M'
+		};
 		this.el = el;
 		this.picker = null;
 		this.isOpen = false;

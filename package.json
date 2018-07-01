@@ -4,7 +4,8 @@
   "description": "customizable time slot picker to be used with or without jQuery a fork from Jan Suwart and his project over at https://github.com/jannicz/appointment-picker",
   "main": "js/appointment-picker.js",
   "scripts": {
-    "uglify": "uglifyjs ./js/appointment-slot-picker.js -c -m -o ./js/appointment-slot-picker.min.js"
+    "uglify": "uglifyjs ./js/appointment-slot-picker.js -c -m -o ./js/appointment-slot-picker.min.js",
+     "build-css": "node-sass --include-path scss ./css/appointment-picker.scss   ./css/appointment-picker.css"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,9 @@
   },
   "homepage": "https://github.com/grandadmiralmcb/appointment-picker#readme",
   "devDependencies": {
+    "node-sass": "^4.9.0",
+    "nodemon": "^1.17.5",
+    "scss": "^0.2.4",
     "uglify-es": "^3.2.2"
   }
 }
