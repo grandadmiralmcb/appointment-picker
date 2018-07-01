@@ -359,7 +359,7 @@
 			return false;
 		} else if (opt.interval <= 60 && intervals.indexOf(minute) < 0) { // Min doesn't match any interval
 			return false;
-		} else if (intervals.indexOf(hour*60+minute) < 0) {
+		} else if (opt.interval > 60 && intervals.indexOf(hour*60+minute) < 0) {
 			return false;
 		}
 			

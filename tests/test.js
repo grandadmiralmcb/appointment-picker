@@ -3,7 +3,7 @@
  *
  * @author Jan Suwart
 */
-describe("appointment-picker API test", function() {
+describe("appointment-slot-picker API test", function() {
 
 	var pickerInstance;
 	var assert = chai.assert;
@@ -17,7 +17,7 @@ describe("appointment-picker API test", function() {
 	}
 
 	before(() => {
-		pickerInstance = new AppointmentPicker(inputEl, {
+		pickerInstance = new AppointmentSlotPicker(inputEl, {
 			interval: 30,
 			mode: '12h',
 			maxTime: 18,
