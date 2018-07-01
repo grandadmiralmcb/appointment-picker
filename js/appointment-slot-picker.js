@@ -463,7 +463,7 @@
 	// Create a dom node containing the markup for the picker
 	function _build(_this) {
 		var node = document.createElement('div');
-		node.innerHTML = _assemblePicker(_this.options, _this.template, _this.intervals, _this.disabledArr);
+		node.innerHTML = _assemblePicker(_this.options, (_this.options.useSlotTemplate) ? _this.slot_template : _this.template, _this.intervals, _this.disabledArr);
 		node.className = ('appo-picker' + (_this.options.large ? ' is-large' : ''));
 		node.setAttribute('aria-hidden', true);
 		_this.el.insertAdjacentElement('afterend', node);
