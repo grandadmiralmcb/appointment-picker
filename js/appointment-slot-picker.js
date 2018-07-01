@@ -10,11 +10,11 @@
 	if (typeof exports === 'object') {
 		module.exports = factory(root); // CommonJS (Node, Browserify, Webpack)
 	} else if (typeof define === 'function' && define.amd) {
-		define('appointment-picker', [], function () {
+		define('appointment-slot-picker', [], function () {
 			return factory(root); // AMD (RequireJS)
 		});
 	} else {
-		root.AppointmentPicker = factory(root); // Browser globals (root = window)
+		root.AppointmentSlotPicker = factory(root); // Browser globals (root = window)
 	}
 }(this, function() {
 	'use strict';
@@ -24,7 +24,7 @@
 	 * @param {HTMLElement} el - reference to the time input field
 	 * @param {Object} options - user defined options
 	 */
-	var AppointmentPicker = function(el, options) {
+	var AppointmentSlotPicker = function(el, options) {
 		this.options = {
 			interval: 60, // Appointment intervall in minutes
 			minTime: 0, // min pickable hour (1-24)
@@ -37,7 +37,7 @@
 			static: false, // Whether to position static (always open)
 			title: 'Timepicker', // Title in opened state
 			position: 'Bottom', //default position
-			useSlotTemplate : false //default template
+			useSlotTemplate : false //default template is time template
 		};
 		this.template = {
 			inner: '<li class="appo-picker-list-item {{disabled}}">' +
@@ -47,14 +47,7 @@
 			time12: 'H:M apm',
 			time24: 'H:M'
 		};
-		this.template2 = {
-			inner: '<li class="appo-picker-list-item {{disabled}" style="width:100%">' + 
-				'<input type="button" tabindex="-1" value="{{time}}" {{disabled}}></li>',
-			outer: '<span class="appo-picker-title">{{title}}</span>' +
-				'<ul class="appo-picker-list">{{innerHtml}}</ul>',
-			time12: 'H:M apm',
-			time24: 'H:M'
-		};
+
 		this.el = el;
 		this.picker = null;
 		this.isOpen = false;
@@ -141,7 +134,7 @@
 	};
 
 	// Attach visibility classes and set the picker's position
-	AppointmentPicker.prototype.render = function() {
+	AppointmentSlotPicker.prototype.render = function() {
 		if (this.isOpen) {
 			var bottom = this.el.offsetTop + this.el.offsetHeight;
 			var left = this.el.offsetLeft;
@@ -169,7 +162,7 @@
 	};
 
 	// Opens the picker, registers further click events
-	AppointmentPicker.prototype.open = function() {
+	AppointmentSlotPicker.prototype.open = function() {
 		var _this = this;
 
 		if (this.isOpen) return;
@@ -196,7 +189,7 @@
 	 * Close the picker and unregister attached events
 	 * @param {Event|null} e - i.e. mouse click event
 	 */
-	AppointmentPicker.prototype.close = function(e) {
+	AppointmentSlotPicker.prototype.close = function(e) {
 		if (!this.isOpen) return;
 
 		// Polyfil matches selector if missing
@@ -293,7 +286,7 @@
 	}
 
 	// Remove the picker's node from the dom and unregister all events
-	AppointmentPicker.prototype.destroy = function() {
+	AppointmentSlotPicker.prototype.destroy = function() {
 		this.close(null);
 
 		if (this.picker) {
@@ -309,7 +302,7 @@
 	 * Sets the pickers current time variable after validating for min/max
 	 * @param {String} value - time input string, i.e. '12:15pm'
 	 */
-	AppointmentPicker.prototype.setTime = function(value) {
+	AppointmentSlotPicker.prototype.setTime = function(value) {
 		var time = _parseTime(value);
 		var is24h = this.options.mode === '24h';
 		var timePattern = is24h ? this.template.time24 : this.template.time12;
@@ -348,7 +341,7 @@
 	};
 
 	// Time getter returns time as 24h
-	AppointmentPicker.prototype.getTime = function() {
+	AppointmentSlotPicker.prototype.getTime = function() {
 		return this.time;
 	};
 
@@ -462,7 +455,7 @@
 	// Create a dom node containing the markup for the picker
 	function _build(_this) {
 		var node = document.createElement('div');
-		node.innerHTML = _assemblePicker(_this.options, (_this.options.useSlotTemplate === true) ? _this.template2 : _this.template, _this.intervals, _this.disabledArr);
+		node.innerHTML = _assemblePicker(_this.options, _this.template, _this.intervals, _this.disabledArr);
 		node.className = ('appo-picker' + (_this.options.large ? ' is-large' : ''));
 		node.setAttribute('aria-hidden', true);
 		_this.el.insertAdjacentElement('afterend', node);
@@ -516,19 +509,19 @@
 				var hour = intDiv(interval, 60);
 				var minute = interval % 60;
 			
-				var templateEndHour = intDiv(interval + opt.interval, 60);
-				var templateEndMinute = (interval + opt.interval) % 60;
+				var slotEndHour = intDiv(interval + opt.interval, 60);
+				var slotEndMinute = (interval + opt.interval) % 60;
 				
 				console.log(hour, minute);
 			
 			
 				var isDisabled = !_isValid(hour, minute, opt, intervals, disabledArr);
 				if (opt.useSlotTemplate === true)
-					var timeTemplate = _printTime(hour, minute, timePattern, isAmPmMode) + " - " + _printTime(templateEndHour, templateEndMinute, timePattern, isAmPmMode);
+					var timeTemplate = _printTime(hour, minute, timePattern, isAmPmMode) + " - " + _printTime(slotEndHour, slotEndMinute, timePattern, isAmPmMode);
 				else
 					var timeTemplate = _printTime(hour, minute, timePattern, isAmPmMode);
 				
-				console.log("Time Template" + timeTemplate);
+			//	console.log("Time Template" + timeTemplate);
 			// Replace timeTemplate placeholders with time and disabled flag
 					inner += tpl.inner
 						.replace('{{time}}', timeTemplate)
@@ -545,5 +538,5 @@
 		
 	};
 
-	return AppointmentPicker;
+	return AppointmentSlotPicker;
 }));
